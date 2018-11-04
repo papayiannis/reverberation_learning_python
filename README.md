@@ -48,7 +48,7 @@ conda install numpy keras scipy tabulate matplotlib pandas seaborn h5py scikit-l
 # Unpack the AIR data
 cd Code/Local_Databases/AIR
 tar zxf ACE16.tar.gz 
-cd ../../pyhtonsrc
+cd ../../pythonsrc
 # Run the training example for a CNN-RNN room classifier using ACE AIRs
 bash run_ace_discriminative_nets.sh ../Local_Databases/AIR/ACE16 \
   /tmp/ ../results_dir/ace_h5_info.h5 0 4 
@@ -70,7 +70,7 @@ To train all these networks in sequence, do the following
 # Unpack the AIR data
 cd Code/Local_Databases/AIR
 tar zxf ACE16.tar.gz 
-cd ../../pyhtonsrc
+cd ../../pythonsrc
 # Run the training example for a CNN-RNN room classifier using ACE AIRs
 bash run_ace_discriminative_nets.sh ../Local_Databases/AIR/ACE16 \
   /tmp/ ../results_dir/ace_h5_info.h5 0 1 2 3 4 
@@ -89,7 +89,7 @@ To train all these networks in sequence, do the following
 # Unpack the AIR data
 cd Code/Local_Databases/AIR
 tar zxf ACE16.tar.gz 
-cd ../../pyhtonsrc
+cd ../../pythonsrc
 mkdir -p /tmp/train_test_speech
 ln -s $TRAIN_SPEECH_LOC /tmp/train_test_speech/TRAIN
 ln -s $TEST_SPEECH_LOC /tmp/train_test_speech/TEST
