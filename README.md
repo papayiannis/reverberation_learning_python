@@ -41,8 +41,8 @@ To use the repository start by setting up your environment. I assume you have an
 
 ```bash
 # Get the repository
-git clone https://github.com/papayiannis/reverb_learning
-cd reverb_learning
+git clone https://github.com/papayiannis/reverberation_learning_python
+cd reverberation_learning_python
 # Get dependencies
 conda install numpy keras scipy tabulate matplotlib pandas seaborn h5py scikit-learn
 # Unpack the AIR data
