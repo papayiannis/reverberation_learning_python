@@ -78,7 +78,7 @@ if [ "$#" -lt 5 ]; then
 fi
 
 python_loc=$HOME/anaconda2/bin/python
-$python_loc myutils_base.py
+$python_loc utils_base.py
 
 ace_dir=$1
 speech_dir=$2
