@@ -51,7 +51,15 @@ tar zxf ACE16.tar.gz
 cd ../../pythonsrc
 # Run the training example for a CNN-RNN room classifier using ACE AIRs
 bash run_ace_discriminative_nets.sh ../Local_Databases/AIR/ACE16 \
-  /tmp/ ../results_dir/ace_h5_info.h5 0 4 
+  /tmp/ ../results_dir/ace_h5_info.h5 0 4 |\
+  tee thelog.txt
+# Make confusion plots
+python ace_confusions.py --preds 
+		<(tac thelog.txt |\
+		  grep -m 1 -B 1000000 'AIR  ' | \
+		  tac  | tail -n +3  | head -n -1 \
+		  | sed 's/[[:space:]]\{1,\}/,/g' \
+		  | cut -d, -f1,2 ) 
 ```
 
 # Room classification
@@ -73,9 +81,17 @@ tar zxf ACE16.tar.gz
 cd ../../pythonsrc
 # Run the training example for a CNN-RNN room classifier using ACE AIRs
 bash run_ace_discriminative_nets.sh ../Local_Databases/AIR/ACE16 \
-  /tmp/ ../results_dir/ace_h5_info.h5 0 1 2 3 4 
+  /tmp/ ../results_dir/ace_h5_info.h5 0 4 |\
+  tee thelog.txt
+# Make confusion plots
+python ace_confusions.py --preds 
+		<(tac thelog.txt |\
+		  grep -m 1 -B 1000000 'AIR  ' | \
+		  tac  | tail -n +3  | head -n -1 \
+		  | sed 's/[[:space:]]\{1,\}/,/g' \
+		  | cut -d, -f1,2 )  
 ```
-The indices 1, 2, 3 and 4 refer respectively to the FF, CNN, RNN and CNN-RNN models.
+The index 4 refers to the CNN-RNN model.
 
 ## Speech
 
@@ -95,7 +111,15 @@ ln -s $TRAIN_SPEECH_LOC /tmp/train_test_speech/TRAIN
 ln -s $TEST_SPEECH_LOC /tmp/train_test_speech/TEST
 # Run the training example for a CNN-RNN room classifier using ACE AIRs and your speech files
 bash run_ace_discriminative_nets.sh ../Local_Databases/AIR/ACE16 \
-  /tmp/train_test_speech/ ../results_dir/ace_h5_info.h5 0 1 2 3 4 
+  /tmp/train_test_speech/ ../results_dir/ace_h5_info.h5 0 8 |\
+  tee thelog.txt
+# Make confusion plots
+python ace_confusions.py --preds 
+		<(tac thelog.txt |\
+		  grep -m 1 -B 1000000 'AIR  ' | \
+		  tac  | tail -n +3  | head -n -1 \
+		  | sed 's/[[:space:]]\{1,\}/,/g' \
+		  | cut -d, -f1,2 ) 
 ```  
 
 The indices 1, 2, 3 and 4 again refer respectively to the FF, CNN, RNN and CNN-RNN models. The locations ```$TRAIN_SPEECH_LOC``` and ```$TEST_SPEECH_LOC``` contain respectively locations where speech wav files are included, for training and for testing of the trained DNNs. The experiments have used TIMIT, however this is not free, so I cannot provide it here. You can use any other speech data you want.

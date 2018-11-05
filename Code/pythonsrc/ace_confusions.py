@@ -155,9 +155,11 @@ if __name__ == "__main__":
     plt.rc('ytick', labelsize=font_size)
     plt.rc('axes', labelsize=font_size)
 
-    data = pd.DataFrame.from_csv(args.preds,
-                                 index_col=None,
-                                 header=None).as_matrix()
+    data = pd.read_csv(args.preds,
+                       index_col=None,
+                       header=None, )
+    data = data[data.columns].astype(str).values
+
     for i in range(data.shape[0]):
         data[i, 0] = data[i, 0].replace('EE_lobby', 'EE-lobby')
         data[i, 0] = data[i, 0].split('_')[1]
