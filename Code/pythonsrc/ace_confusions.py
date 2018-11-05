@@ -104,7 +104,7 @@ if __name__ == "__main__":
     You get the preds.csv file by running 
     ace_discriminative_nets.py [arguments] > logfile.txt
     And then:
-    first='------------' ;second='Overall A';tac logfile.txt | \ 
+    tac logfile.txt | \ 
     grep -m 1 -B 1000000 'AIR  ' | tac  | tail -n +3  | head -n -1 | \ 
     sed 's/[[:space:]]\{1,\}/,/g' | cut -d, -f1,2 > preds.csv
 
@@ -134,6 +134,8 @@ if __name__ == "__main__":
                              'large experiments). Then in this case, the number of samples per '
                              'class will be made to match the number you give here and it will '
                              'assume that the remaining samples were correctly predicted.')
+    parser.add_argument('--tex', dest='tex', action="store_true",
+                        default=False, help='Render using latex')
 
     args = parser.parse_args()
 
@@ -149,11 +151,12 @@ if __name__ == "__main__":
 
     font_size = 8
 
-    plt.rc('font', family='serif', serif='Times')
-    plt.rc('text', usetex=True)
-    plt.rc('xtick', labelsize=font_size)
-    plt.rc('ytick', labelsize=font_size)
-    plt.rc('axes', labelsize=font_size)
+    if args.tex:
+        plt.rc('font', family='serif', serif='Times')
+        plt.rc('text', usetex=True)
+        plt.rc('xtick', labelsize=font_size)
+        plt.rc('ytick', labelsize=font_size)
+        plt.rc('axes', labelsize=font_size)
 
     data = pd.read_csv(args.preds,
                        index_col=None,

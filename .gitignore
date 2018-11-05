@@ -45,3 +45,4 @@ Code/results_dir/air_modeling_results/
 Code/results_dir/gan_h5_info.h5
 Code/results_dir/training_test_data_wav.h5
 Code/tmp.m
+Code/pythonsrc/requirements.txt
