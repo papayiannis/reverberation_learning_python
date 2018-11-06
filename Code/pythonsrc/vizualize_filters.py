@@ -344,6 +344,8 @@ def viz_net(model_loc, air_loc=None, nrows=4, interactive=False, channel=0,
 
     if speechfile is not None:
         fs_speech, x_speech = wavfile.read(speechfile)
+        if x_speech.ndim > 1:
+            x_speech = x_speech[:, 0]
     else:
         x_speech = None
         fs_speech = None
