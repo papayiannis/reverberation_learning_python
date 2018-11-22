@@ -31,7 +31,7 @@ Features:
 *   Evaluates the accuracy of the modeling using a number of measures such as the NPM and the
 Itakura distance.
 
-[1] {placeholder1}
+[1] C. Papayiannis, C. Evers, and P. A. Naylor, "Data Augmentation using GANs for the Classification of Reverberant Rooms," (to be submitted), 2019
 
 Usage:
 

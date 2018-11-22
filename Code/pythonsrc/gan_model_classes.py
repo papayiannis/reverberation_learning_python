@@ -25,7 +25,7 @@ https://github.com/eriklindernoren/Keras-GAN
 by Erik Linder-Noren @eriklindernoren
 
 Models used for the work in:
-{placeholder1}
+C. Papayiannis, C. Evers, and P. A. Naylor, "Data Augmentation using GANs for the Classification of Reverberant Rooms," (to be submitted), 2019
 
 """
 

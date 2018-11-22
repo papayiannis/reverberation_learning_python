@@ -46,7 +46,7 @@
 # {repo}
 # If you use this code in your work, then cite [1].
 #
-# [1] {placeholder1}
+# [1] C. Papayiannis, C. Evers, and P. A. Naylor, "Data Augmentation using GANs for the Classification of Reverberant Rooms," (to be submitted), 2019
 # [2] http://www.ee.ic.ac.uk/naylor/ACEweb/index.html
 #
 #################################################################################################################
