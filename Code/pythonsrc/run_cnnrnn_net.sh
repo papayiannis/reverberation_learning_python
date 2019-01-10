@@ -45,7 +45,7 @@
 # {repo}
 # If you use this code in your work, then cite [1].
 #
-# [1] C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-end discriminative models for the reverberation effect," (to be submitted), 2019
+# [1] {placeholder}
 # [2] http://www.ee.ic.ac.uk/naylor/ACEweb/index.html
 #
 #################################################################################################################

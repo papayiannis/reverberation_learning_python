@@ -21,13 +21,13 @@ The purpose of the file is to allow for the visualization of results obtained us
 filter kernels can be visualized and also data can be filtered by the network and plotted.
 
 More information given below. It is used for the results shown in:
-C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-end discriminative models for the reverberation effect," (to be submitted), 2019
+{placeholder}
 
 This file was original distributed in the repository at:
 {repo}
 
 If you use this code in your work, then cite:
-C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-end discriminative models for the reverberation effect," (to be submitted), 2019
+{placeholder}
 
 """
 

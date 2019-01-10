@@ -17,13 +17,13 @@
 
 """
 Acoustic environment model object, based on the work in
-C. Papayiannis, C. Evers, and P. A. Naylor, "Data Augmentation using GANs for the Classification of Reverberant Rooms," (to be submitted), 2019
+{placeholder1}
 
 This file was original distributed in the repository at:
 {repo}
 
 If you use this code in your work, then cite:
-C. Papayiannis, C. Evers, and P. A. Naylor, "Data Augmentation using GANs for the Classification of Reverberant Rooms," (to be submitted), 2019
+{placeholder1}
 
 """
 
@@ -48,7 +48,7 @@ class AcEnvGenModelBase(object):
     """
 
     Acoustic environment model object, based on the work in
-    C. Papayiannis, C. Evers, and P. A. Naylor, "Data Augmentation using GANs for the Classification of Reverberant Rooms," (to be submitted), 2019
+    {placeholder1}
 
     It models the acoustic environment using a sparse model for the reflections in the early part
     and complements this model for a stochastic model for the tail. The tail model represents the
@@ -1855,7 +1855,7 @@ def get_pca_excitation(airs, fs, modeling_span=(0.003, 0.003),
     """
     Estimates the excitation used ot measure a set of AIRs, which were measured using the same
     measuring method and the same equipment. The approach is discussed in:
-    C. Papayiannis, C. Evers, and P. A. Naylor, "Data Augmentation using GANs for the Classification of Reverberant Rooms," (to be submitted), 2019
+    {placeholder1}
 
     Args:
         airs: The AIR FIR filter taps

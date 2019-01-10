@@ -19,13 +19,13 @@
 
 This file describes the code used for developing the work and evaluating the experiments
 described in:
-C. Papayiannis, C. Evers, and P. A. Naylor, "Data Augmentation using GANs for the Classification of Reverberant Rooms," (to be submitted), 2019
+{placeholder1}
 
 This file was original distributed in the repository at:
 {repo}
 
 If you use this code in your work, then cite:
-C. Papayiannis, C. Evers, and P. A. Naylor, "Data Augmentation using GANs for the Classification of Reverberant Rooms," (to be submitted), 2019
+{placeholder1}
 
 """
 

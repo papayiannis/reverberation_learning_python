@@ -22,7 +22,7 @@ This file was original distributed in the repository at:
 {repo}
 
 If you use this code in your work, then cite:
-C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-end discriminative models for the reverberation effect," (to be submitted), 2019
+{placeholder}
 
 """
 
