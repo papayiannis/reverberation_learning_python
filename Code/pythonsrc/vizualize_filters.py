@@ -21,13 +21,13 @@ The purpose of the file is to allow for the visualization of results obtained us
 filter kernels can be visualized and also data can be filtered by the network and plotted.
 
 More information given below. It is used for the results shown in:
-{placeholder}
+C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-End Classification of Reverberant Rooms using DNNs," arXiv preprint arXiv:1812.09324, 2018.
 
 This file was original distributed in the repository at:
 {repo}
 
 If you use this code in your work, then cite:
-{placeholder}
+C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-End Classification of Reverberant Rooms using DNNs," arXiv preprint arXiv:1812.09324, 2018.
 
 """
 

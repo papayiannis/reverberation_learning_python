@@ -26,7 +26,7 @@ This file was original distributed in the repository at:
 
 If you use this code in your work, then cite [1].
 
-[1] {placeholder}
+[1] C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-End Classification of Reverberant Rooms using DNNs," arXiv preprint arXiv:1812.09324, 2018.
 
 """
 
@@ -704,7 +704,7 @@ def train_eval(h5_loc, ace_base, timestamp,
 if __name__ == '__main__':
     """
     This file is the main worker for training and evaluating the DNNs proposed in:
-    {placeholder}
+    C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-End Classification of Reverberant Rooms using DNNs," arXiv preprint arXiv:1812.09324, 2018.
     
     usage: ace_discriminative_nets.py [-h] [--ace ACE_BASE] [--h5 H5]
                                   [--bsh5 [BSH5 [BSH5 ...]]]

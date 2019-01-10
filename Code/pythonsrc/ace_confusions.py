@@ -26,7 +26,7 @@ This file was original distributed in the repository at:
 {repo}
 
 If you use this code in your work, then cite:
-{placeholder}
+C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-End Classification of Reverberant Rooms using DNNs," arXiv preprint arXiv:1812.09324, 2018.
 
 """
 

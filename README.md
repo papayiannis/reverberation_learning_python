@@ -7,7 +7,7 @@ _Reverberation Learning Toolbox for Python is free software: you can redistribut
 
 Training DNNs has been a tone in the modelling of complex relationships between the observed world and its high level properties, which we use to describe it. Their contribution to the field of image-object recognition, speech recognition and language processing has pushed the boundaries of state-of-the-art in the field. Their potential benefits have not been thoroughly discussed in the literature in terms of the modelling and classification of the reverberation effect however, which can lead to an improvement over current methods. Some contributions have looked at dereverberation using DNNs. The motivation to _understand_ the effect however has not been substantially explored in the context of DNNs in the literature. 
 
-The work in [@placeholder] has been one of the first steps in using deep learning to understand the underlying model of the reverberation effect. The subsequent work in [@placeholder1] has also illustrated how a compact and semantically meaningful model for the effect can lead to estimates of the generative models for the underlying process. Connecting the classification and generative model estimation tasks, [@placeholder1] shows how data-augmentation leads to more accurate classification of the reverberation effect. The generative models, estimated using GANs, find applications beyond classification and allow for the generation of reverberant acoustic environments. The training of the generator network aims to create environments indistinguishable from real ones, when judged by a DNN adversary to the process. 
+The work in [1] has been one of the first steps in using deep learning to understand the underlying model of the reverberation effect. The subsequent work in [@placeholder1] has also illustrated how a compact and semantically meaningful model for the effect can lead to estimates of the generative models for the underlying process. Connecting the classification and generative model estimation tasks, [@placeholder1] shows how data-augmentation leads to more accurate classification of the reverberation effect. The generative models, estimated using GANs, find applications beyond classification and allow for the generation of reverberant acoustic environments. The training of the generator network aims to create environments indistinguishable from real ones, when judged by a DNN adversary to the process. 
 
 This repository includes the code that was used to classify reverberant acoustic environments in terms of rooms.  for reverberation can all of It also contains useful code for DSP, speech processing and deep learning using Keras.
 
@@ -63,7 +63,7 @@ tar zxf ACE16.tar.gz
 
 # Room classification
 
-The work in [@placeholder] discussed methods and strategies for training DNNs for room classification of reverberant acoustic environments. 
+The work in [1] discussed methods and strategies for training DNNs for room classification of reverberant acoustic environments. 
 
 ## AIRs
 
@@ -131,7 +131,7 @@ The indices 1, 2, 3 and 4 again refer respectively to the FF, CNN, RNN and CNN-R
 
 ## Filter Visualisation
 
-As shown in the snippets in the previous Section, the repository offers routines which enable the visualisation of the filter kernels which form CNN layers. The routines also allow the user to filter audio inputs through the layers of the CNN layers and visualise the derived feature maps. Doing this for a speech segment and using a CNN-RNN for room classification, the derived feature maps are the following [@placeholder].
+As shown in the snippets in the previous Section, the repository offers routines which enable the visualisation of the filter kernels which form CNN layers. The routines also allow the user to filter audio inputs through the layers of the CNN layers and visualise the derived feature maps. Doing this for a speech segment and using a CNN-RNN for room classification, the derived feature maps are the following [1].
 
 ![filter_viz](doc/figures/room_dnn/filter_viz.png)
 
@@ -232,7 +232,7 @@ FF: Feed Forward
 
 # Bibliography  
 
-[@placeholder]: {placeholder} p  
+[1]: C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-End Classification of Reverberant Rooms using DNNs," arXiv preprint arXiv:1812.09324, 2018.
 [@placeholder1]: {placeholder1} p  
 [@Eaton2015]: J. Eaton; N. D. Gaubitch; A. H. Moore; P. A. Naylor, "Estimation of room acoustic parameters: The ACE Challenge," in IEEE/ACM Transactions on Audio, Speech, and Language Processing, vol. 24, no.10, pp.1681-1693, Oct. 2016.
 
