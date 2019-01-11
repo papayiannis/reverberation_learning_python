@@ -1,10 +1,8 @@
 
 # Reverberation Learning Toolbox for Python
-<center>
-_Copyright 2019 [Constantinos Papayiannis](https://www.linkedin.com/in/papayiannis/)_  
-_Reverberation Learning Toolbox for Python is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version._
-</center>  
 
+Copyright 2019 [Constantinos Papayiannis](https://www.linkedin.com/in/papayiannis/)  
+  
 # Introduction
 
 Training DNNs has been a tone in the modelling of complex relationships between the observed world and its high level properties, which we use to describe it. Their contribution to the field of image-object recognition, speech recognition and language processing has pushed the boundaries of state-of-the-art in the field. Their potential benefits have not been thoroughly discussed in the literature in terms of the modelling and classification of the reverberation effect however, which can lead to an improvement over current methods. Some contributions have looked at dereverberation using DNNs. The motivation to _understand_ the effect however has not been substantially explored in the context of DNNs in the literature. 
@@ -249,7 +247,9 @@ FF: Feed Forward
 
 [1]: [C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-End Classification of Reverberant Rooms using DNNs," arXiv preprint arXiv:1812.09324, 2018.](https://arxiv.org/abs/1812.09324)  
 [2]: [C. Papayiannis, C. Evers, and P. A. Naylor, "Data Augmentation of Room Classifiers using Generative Adversarial Networks," arXiv preprint arXiv:1901.03257, 2018.](https://arxiv.org/abs/1901.03257)  
-[3]: J. Eaton; N. D. Gaubitch; A. H. Moore; P. A. Naylor, "Estimation of room acoustic parameters: The ACE Challenge," in IEEE/ACM Transactions on Audio, Speech, and Language Processing, vol. 24, no.10, pp.1681-1693, Oct. 2016.
+[3]: J. Eaton; N. D. Gaubitch; A. H. Moore; P. A. Naylor, "Estimation of room acoustic parameters: The ACE Challenge," in IEEE/ACM Transactions on Audio, Speech, and Language Processing, vol. 24, no.10, pp.1681-1693, Oct. 2016.  
+  
+_Reverberation Learning Toolbox for Python is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version._
 
 
 
