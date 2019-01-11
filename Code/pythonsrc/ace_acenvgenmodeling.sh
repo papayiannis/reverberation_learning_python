@@ -41,7 +41,7 @@
 # {repo}
 # If you use this code in your work, then cite [1].
 #
-# [1] {placeholder1}
+# [1] C. Papayiannis, C. Evers, and P. A. Naylor, "Data Augmentation of Room Classifiers using Generative Adversarial Networks," arXiv preprint arXiv:1901.03257, 2018.
 # [2] http://www.ee.ic.ac.uk/naylor/ACEweb/index.html
 #
 #################################################################################################################

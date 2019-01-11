@@ -7,7 +7,7 @@ _Reverberation Learning Toolbox for Python is free software: you can redistribut
 
 Training DNNs has been a tone in the modelling of complex relationships between the observed world and its high level properties, which we use to describe it. Their contribution to the field of image-object recognition, speech recognition and language processing has pushed the boundaries of state-of-the-art in the field. Their potential benefits have not been thoroughly discussed in the literature in terms of the modelling and classification of the reverberation effect however, which can lead to an improvement over current methods. Some contributions have looked at dereverberation using DNNs. The motivation to _understand_ the effect however has not been substantially explored in the context of DNNs in the literature. 
 
-The work in [1] has been one of the first steps in using deep learning to understand the underlying model of the reverberation effect. The subsequent work in [@placeholder1] has also illustrated how a compact and semantically meaningful model for the effect can lead to estimates of the generative models for the underlying process. Connecting the classification and generative model estimation tasks, [@placeholder1] shows how data-augmentation leads to more accurate classification of the reverberation effect. The generative models, estimated using GANs, find applications beyond classification and allow for the generation of reverberant acoustic environments. The training of the generator network aims to create environments indistinguishable from real ones, when judged by a DNN adversary to the process. 
+The work in [1] has been one of the first steps in using deep learning to understand the underlying model of the reverberation effect. The subsequent work in [2] has also illustrated how a compact and semantically meaningful model for the effect can lead to estimates of the generative models for the underlying process. Connecting the classification and generative model estimation tasks, [2] shows how data-augmentation leads to more accurate classification of the reverberation effect. The generative models, estimated using GANs, find applications beyond classification and allow for the generation of reverberant acoustic environments. The training of the generator network aims to create environments indistinguishable from real ones, when judged by a DNN adversary to the process. 
 
 This repository includes the code that was used to classify reverberant acoustic environments in terms of rooms.  for reverberation can all of It also contains useful code for DSP, speech processing and deep learning using Keras.
 
@@ -29,11 +29,11 @@ This repository offers a toolbox which allows the user to
 	  * RNNs
 	  * Bidirectional RNNs
 	  * CNN-RNNs
-	* Provides dedicated routines for collecting data from the ACE challenge corpus [@Eaton2015].
+	* Provides dedicated routines for collecting data from the ACE challenge corpus [3].
 * Methods for modelling of acoustic environments
-	* Routines for the modelling of acoustic environments using a given AIR, using the method of [placeholder1].
+	* Routines for the modelling of acoustic environments using a given AIR, using the method of [2].
 * GAN generative model estimation for the reverberation effect.
-	* Using the method of [placeholder1], GANs are trained for reverberant environments
+	* Using the method of [2], GANs are trained for reverberant environments
 	* Data augmentation strategies for deep learning using reverberation data
 * Reusable and useful routines for
 	* Keras model learning
@@ -139,7 +139,7 @@ To learn more about how to perform the visualization, then use ```python vizuali
 
 # Channel Modelling
 
-Acoustic environments are typically described by the AIR between the source and the receiver. The AIRs however involve thousands of taps and the taps are not semantically meaningful. The work in [@placeholder1] has proposed a model for describing the acoustic channel, which is based on a sparse parametric description for the early part of the AIR and a stochastic model for the decaying tail. This repository provides the code which estimates the model's parameters and returns their values, along with the reconstruction of the AIR.
+Acoustic environments are typically described by the AIR between the source and the receiver. The AIRs however involve thousands of taps and the taps are not semantically meaningful. The work in [2] has proposed a model for describing the acoustic channel, which is based on a sparse parametric description for the early part of the AIR and a stochastic model for the decaying tail. This repository provides the code which estimates the model's parameters and returns their values, along with the reconstruction of the AIR.
 
 Running the modelling process for an AIR part of a meeting room is shown below. The first graph shows the modelling of the early part. It is acquired using  
 
@@ -197,7 +197,7 @@ bash ace_acenvgenmodeling.sh /tmp/modeling_results
 
 # GAN Training and data augmentation
 
-Training GANs provides estimates of generative models  using deep learning. The work in [placeholder1] has shown how a low-dimensional encoding of reverberant acoustic environments allows for GANs to estimate such models for the reverberation effect. The framework which was proposed has put together the sparse modelling for refections and the stochastic model for the tail to form a vector characteristic of the environment. The distribution of the elements of the vectors are learned, which allows for instances of artificial environments to be generated. The GAN is trained so that the learned instances are considered realistic, when compared to the measured ones provided to the networks during training. The process of putting together the GAN components and the modelling of environments is shown in the figure below.
+Training GANs provides estimates of generative models  using deep learning. The work in [2] has shown how a low-dimensional encoding of reverberant acoustic environments allows for GANs to estimate such models for the reverberation effect. The framework which was proposed has put together the sparse modelling for refections and the stochastic model for the tail to form a vector characteristic of the environment. The distribution of the elements of the vectors are learned, which allows for instances of artificial environments to be generated. The GAN is trained so that the learned instances are considered realistic, when compared to the measured ones provided to the networks during training. The process of putting together the GAN components and the modelling of environments is shown in the figure below.
 
 ![GAN Framework](./doc/figures/gan/gan_gen_framework.png)
 
@@ -232,9 +232,9 @@ FF: Feed Forward
 
 # Bibliography  
 
-[1]: C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-End Classification of Reverberant Rooms using DNNs," arXiv preprint arXiv:1812.09324, 2018.
-[@placeholder1]: {placeholder1} p  
-[@Eaton2015]: J. Eaton; N. D. Gaubitch; A. H. Moore; P. A. Naylor, "Estimation of room acoustic parameters: The ACE Challenge," in IEEE/ACM Transactions on Audio, Speech, and Language Processing, vol. 24, no.10, pp.1681-1693, Oct. 2016.
+[1]: [C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-End Classification of Reverberant Rooms using DNNs," arXiv preprint arXiv:1812.09324, 2018.](https://arxiv.org/abs/1812.09324)  
+[2]: [C. Papayiannis, C. Evers, and P. A. Naylor, "Data Augmentation of Room Classifiers using Generative Adversarial Networks," arXiv preprint arXiv:1901.03257, 2018.](https://arxiv.org/abs/1901.03257)  
+[3]: J. Eaton; N. D. Gaubitch; A. H. Moore; P. A. Naylor, "Estimation of room acoustic parameters: The ACE Challenge," in IEEE/ACM Transactions on Audio, Speech, and Language Processing, vol. 24, no.10, pp.1681-1693, Oct. 2016.
 
 
 

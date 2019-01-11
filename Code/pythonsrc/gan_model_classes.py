@@ -25,7 +25,7 @@ https://github.com/eriklindernoren/Keras-GAN
 by Erik Linder-Noren @eriklindernoren
 
 Models used for the work in:
-{placeholder1}
+C. Papayiannis, C. Evers, and P. A. Naylor, "Data Augmentation of Room Classifiers using Generative Adversarial Networks," arXiv preprint arXiv:1901.03257, 2018.
 
 """
 

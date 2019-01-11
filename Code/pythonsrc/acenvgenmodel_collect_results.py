@@ -29,7 +29,7 @@ This file was original distributed in the repository at:
 {repo}
 
 If you use this code in your work, then cite:
-{placeholder1}
+C. Papayiannis, C. Evers, and P. A. Naylor, "Data Augmentation of Room Classifiers using Generative Adversarial Networks," arXiv preprint arXiv:1901.03257, 2018.
 
 """
 

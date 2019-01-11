@@ -31,7 +31,7 @@ Features:
 *   Evaluates the accuracy of the modeling using a number of measures such as the NPM and the
 Itakura distance.
 
-[1] {placeholder1}
+[1] C. Papayiannis, C. Evers, and P. A. Naylor, "Data Augmentation of Room Classifiers using Generative Adversarial Networks," arXiv preprint arXiv:1901.03257, 2018.
 
 Usage:
 
