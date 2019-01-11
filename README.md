@@ -1,7 +1,10 @@
+<center>
 # Reverberation Learning Toolbox for Python
 
-_Copyright 2018 [Constantinos Papayiannis](https://www.linkedin.com/in/papayiannis/)_  
+
+_Copyright 2019 [Constantinos Papayiannis](https://www.linkedin.com/in/papayiannis/)_  
 _Reverberation Learning Toolbox for Python is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version._
+</center>
 
 # Introduction
 
@@ -69,7 +72,9 @@ The work in [1] discussed methods and strategies for training DNNs for room clas
 
 The first set of experiments looked at how AIRs can be used to train DNNs and how they can be used for inference. The 4 candidate architectures for the task, confided in the paper are shown below.
 
+<center>
 ![AIR](doc/figures/room_dnn/all_air.png)
+</center>  
 
 To train all these networks in sequence, do the following  
 
@@ -98,7 +103,9 @@ The index 4 refers to the CNN-RNN model. ```$model_h5_location``` is the locatio
 
 To perform the following task from reverberant speech, the corresponding 4  architectures for the task are
 
+<center>
 ![AIR](doc/figures/room_dnn/all_speech.png)
+</center>  
 
 To train all these networks in sequence, do the following  
 
@@ -133,7 +140,9 @@ The indices 1, 2, 3 and 4 again refer respectively to the FF, CNN, RNN and CNN-R
 
 As shown in the snippets in the previous Section, the repository offers routines which enable the visualisation of the filter kernels which form CNN layers. The routines also allow the user to filter audio inputs through the layers of the CNN layers and visualise the derived feature maps. Doing this for a speech segment and using a CNN-RNN for room classification, the derived feature maps are the following [1].
 
+<center>
 ![filter_viz](doc/figures/room_dnn/filter_viz.png)
+</center>  
 
 To learn more about how to perform the visualization, then use ```python vizualize_filters.py --help```.
 
@@ -149,8 +158,9 @@ python acenvgenmodel_worker.py --nomatlabinit   \
   		--fs 16000  --transition 0.024  --sparsefact 0.8 \  
   	 	--lassocoef 0.8  --nodisplay --early
 ```
-
+<center>
 ![Early Modelling](./doc/figures/room_dnn/EM32_803_1_ch0_RIR_early.png)
+</center>  
 
 Modelling the entire AIR is shown below and it is done using   
 
@@ -161,7 +171,9 @@ python acenvgenmodel_worker.py --nomatlabinit \
 		--nodisplay --early
 ```
 
+<center>
 ![Full Modelling](./doc/figures/room_dnn/EM32_803_1_ch0_RIR.png)
+</center>  
 
 The modelling process returns the list of estimated model parameters values:
 
@@ -199,7 +211,9 @@ bash ace_acenvgenmodeling.sh /tmp/modeling_results
 
 Training GANs provides estimates of generative models  using deep learning. The work in [2] has shown how a low-dimensional encoding of reverberant acoustic environments allows for GANs to estimate such models for the reverberation effect. The framework which was proposed has put together the sparse modelling for refections and the stochastic model for the tail to form a vector characteristic of the environment. The distribution of the elements of the vectors are learned, which allows for instances of artificial environments to be generated. The GAN is trained so that the learned instances are considered realistic, when compared to the measured ones provided to the networks during training. The process of putting together the GAN components and the modelling of environments is shown in the figure below.
 
+<center>
 ![GAN Framework](./doc/figures/gan/gan_gen_framework.png)
+</center>  
 
 To perform the training of GANs using ACE data, the following command is used
 
@@ -210,7 +224,9 @@ bash gan_model_worker.sh /tmp/modeling_res  /tmp/gan_results/
 
 where ```/tmp/modeling_res```, the location where the results of ```ace_acenvgenmodeling.sh``` were saved. The script trains one GAN for each room in the dataset and subsequently generates a set of responses, as if they were measured in the corresponding rooms. An example of such responses is given below
 
+<center>
 ![GAN generated data](./doc/figures/gan/gan_gen.png)
+</center>  
 
 The set of generated responses finds an application in data augmentation training for DNN classifiers. To add the generated data as a data augmentation set to the CNN-RNN classifier discussed in previous Sections, following command is used:
 
