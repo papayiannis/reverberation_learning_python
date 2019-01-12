@@ -5,51 +5,57 @@ Copyright 2019 [Constantinos Papayiannis](https://www.linkedin.com/in/papayianni
   
 # Introduction
 
-Training DNNs has been a tone in the modelling of complex relationships between the observed world and its high level properties, which we use to describe it. Their contribution to the field of image-object recognition, speech recognition and language processing has pushed the boundaries of state-of-the-art in the field. Their potential benefits have not been thoroughly discussed in the literature in terms of the modelling and classification of the reverberation effect however, which can lead to an improvement over current methods. Some contributions have looked at dereverberation using DNNs. The motivation to _understand_ the effect however has not been substantially explored in the context of DNNs in the literature. 
+DNNs are  widely adopted in the fields of  image processing and language processing and have significantly advanced state-of-the-art. They enabled new technologies to emerge which amaze consumers and researchers alike. However, the investigation into the abilities of DNNs to classify and model  reverberant acoustic environments has been limited in the literature. Despite efforts to use DNNs to  dereverberate speech, _understanding_ the reverberation effect has not been a strong motivation for their use in the past.
 
-The work in [1] has been one of the first steps in using deep learning to understand the underlying model of the reverberation effect. The subsequent work in [2] has also illustrated how a compact and semantically meaningful model for the effect can lead to estimates of the generative models for the underlying process. Connecting the classification and generative model estimation tasks, [2] shows how data-augmentation leads to more accurate classification of the reverberation effect. The generative models, estimated using GANs, find applications beyond classification and allow for the generation of reverberant acoustic environments. The training of the generator network aims to create environments indistinguishable from real ones, when judged by a DNN adversary to the process. 
+The work in [1] has been one of the first steps in using deep learning to classify reverberant environments based on their acoustics. DNNs were provided with reverberant speech signals and the signals were classified in terms of the room where the recording was made in. The subsequent work in [2] has  illustrated how a compact and semantically meaningful model for the reverberation effect enables GANs to be trained, able to increase the accuracy of room classifiers through data augmentation.  The trained GANs find applications beyond classification and allow for the generation of AIRs that are described by a high level descriptor, such as the name of a specific room or the type of room and many others. The aim is to create environments indistinguishable from real ones, when judged by a DNN adversary to the process. 
 
-This repository includes the code that was used to classify reverberant acoustic environments in terms of rooms.  for reverberation can all of It also contains useful code for DSP, speech processing and deep learning using Keras.
+This repository includes the code that was used in [1] and [2]. It is intended to be used by other researchers that aim to build on the work and follow the many promising research paths that stem from it. It also contains useful code for DSP, speech processing and deep learning using Keras.
 
 _Note: the code provided here is for the purpose of allowing researchers to use the techniques proposed in the referenced work in their own research. To reproducing the experiments of the work in terms of getting the same results you should adjust the values of the relevant algorithms in the code and acquire the same data from the same sources. Hardware specifications and Python (+packages) versions also affect the results. Any work using this code is expected to provide appropriate citations to the papers at the bottom of this page_
 
 # Description
 
-This repository offers a toolbox which allows the user to
+The repository features code for:
 
-1. DNN training for reverberant acoustic environments
-	* Prepare reverberant environment training data for DNN classifiers
-	  * Can create directly data from AIRs.
-	  * Can create reverberant speech data, combining the AIRs and anechoic speech.
-	  * Flexibility over classification tasks considered. 
-	    * Can provide labels for rooms, position, room type and microphone arrays.
+1. DNN training for reverberant acoustic environments:
+	* Prepare training data for classifiers:
+	  * Create data directly from AIRs.
+	  * Create reverberant speech  data, combining AIRs and anechoic speech.
+	  * Flexibility over classification tasks considered. Provides labels for: 
+		  *  Rooms.
+		  *  Position.
+		  *  Room type.
+		  *  Microphone arrays.
 	* Train DNNs for room classification with configurable architectures. Supports:
-	  * FF Networks
-	  * CNNs
-	  * RNNs
-	  * Bidirectional RNNs
-	  * CNN-RNNs
+	  * FF Networks.
+	  * CNNs.
+	  * RNNs.
+	  * Bidirectional RNNs.
+	  * CNN-RNNs.
 	* Provides dedicated routines for collecting data from the ACE challenge corpus [3].
-* Methods for modelling of acoustic environments
-	* Routines for the modelling of acoustic environments using a given AIR, using the method of [2].
-* GAN generative model estimation for the reverberation effect.
-	* Using the method of [2], GANs are trained for reverberant environments
-	* Data augmentation strategies for deep learning using reverberation data
-* Reusable and useful routines for
-	* Keras model learning
-		* Model training routines
-		* Batch generation
-		* Batch balancing
-		* Multi-purpose and customisable callbacks 
-		* CNN filter and feature map visualisation for audio
-		* Confusion plots
+* Methods for modelling of acoustic environments:
+	* Routines for the modelling of reverberant environments using the  method of [2] and [4].
+	* Decompose AIRs into:
+		* Reflection ToAs and scales
+		* Estimate excitation signal for AIR measurement. 
+		* Get reverberant tail stochastic model.
+* GAN for the reverberant acoustic environments
+	* Using [2], GANs are trained for reverberant rooms.
+	* Data augmentation strategies for DNNs using reverberation data.
+* Reusable and useful routines for:
+	* Keras model learning:
+		* Model training routines.
+		* Batch generation.
+		* Batch balancing.
+		* Multi-purpose and customisable callbacks. 
+		* CNN filter and feature map visualisation for audio.
+		* Confusion plots.
 	* Signal processing and signal manipulation.
 	* Reverberation and acoustic parameter estimation.
   
 # Setup
 
-To use the repository start by setting up your environment. I assume you have anaconda and you are working with Python2.7. The code has not been checked with Python3.
-
+To use the repository start by setting up your environment. I assume you have anaconda and you are working with Python2.7. 
 ```bash
 # Get the repository
 git clone https://github.com/papayiannis/reverberation_learning_python
@@ -67,7 +73,7 @@ The work in [1] discussed methods and strategies for training DNNs for room clas
 
 ## AIRs
 
-The first set of experiments looked at how AIRs can be used to train DNNs and how they can be used for inference. The 4 candidate architectures for the task, confided in the paper are shown below.
+The first set of experiments in [1] looked at how AIRs can be used to train DNNs and how they can be used for inference. The 4 candidate architectures for the task, confided in the paper are shown below.
 
 
 ![AIR](doc/figures/room_dnn/all_air.png)
@@ -206,8 +212,7 @@ bash ace_acenvgenmodeling.sh /tmp/modeling_results
 
 # GAN Training and data augmentation
 
-Training GANs provides estimates of generative models  using deep learning. The work in [2] has shown how a low-dimensional encoding of reverberant acoustic environments allows for GANs to estimate such models for the reverberation effect. The framework which was proposed has put together the sparse modelling for refections and the stochastic model for the tail to form a vector characteristic of the environment. The distribution of the elements of the vectors are learned, which allows for instances of artificial environments to be generated. The GAN is trained so that the learned instances are considered realistic, when compared to the measured ones provided to the networks during training. The process of putting together the GAN components and the modelling of environments is shown in the figure below.
-
+The effectiveness of training DNNs is highly dependent on the amount and the quality of the available training data. For the case of training DNNs for classifying reverberant acoustic environments, such as in [1], the training data are the AIRs measured in the environments. However, as [1] has shown, the number of available AIRs for training and limited and they are high-dimensional. This is a challenge to overcome when training networks for the task. The method proposed in [2] performs data augmentation for the training of DNNs for room classification. The method enables GANs to be trained in order to generate AIRs as if they were measured in real rooms. This produces additional training data used during the training of classifiers, without the need for additional data collection. The stages of the method are shown below:
 
 ![GAN Framework](./doc/figures/gan/gan_gen_framework.png)
 
@@ -247,7 +252,8 @@ FF: Feed Forward
 
 [1]: [C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-End Classification of Reverberant Rooms using DNNs," arXiv preprint arXiv:1812.09324, 2018.](https://arxiv.org/abs/1812.09324)  
 [2]: [C. Papayiannis, C. Evers, and P. A. Naylor, "Data Augmentation of Room Classifiers using Generative Adversarial Networks," arXiv preprint arXiv:1901.03257, 2018.](https://arxiv.org/abs/1901.03257)  
-[3]: J. Eaton; N. D. Gaubitch; A. H. Moore; P. A. Naylor, "Estimation of room acoustic parameters: The ACE Challenge," in IEEE/ACM Transactions on Audio, Speech, and Language Processing, vol. 24, no.10, pp.1681-1693, Oct. 2016.  
+[3]: [J. Eaton, N. D. Gaubitch, A. H. Moore and P. A. Naylor, "Estimation of room acoustic parameters: The ACE Challenge," in IEEE/ACM Transactions on Audio, Speech, and Language Processing, vol. 24, no.10, pp.1681-1693, Oct. 2016.](https://ieeexplore.ieee.org/document/7486010)  
+[4] [Papayiannis, Constantinos, Christine Evers, and Patrick A. Naylor. "Sparse parametric modeling of the early part of acoustic impulse responses." Signal Processing Conference (EUSIPCO), 2017 25th European. IEEE, 2017.](https://ieeexplore.ieee.org/abstract/document/8081293)
   
 _Reverberation Learning Toolbox for Python is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version._
 
