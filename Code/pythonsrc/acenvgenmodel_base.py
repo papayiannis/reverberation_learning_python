@@ -429,7 +429,11 @@ class AcEnvGenModelBase(object):
             try:
                 import matlab.engine
             except ImportError:
-                self.printer(getfname() + " : Cannot import MATLAB, will use ElasticNet")
+                self.printer(getfname() + " : Cannot import MATLAB, will use ElasticNet. This "
+                                          "will take a long time. If you have Matlab, you can set "
+                                          "it up to work with Python: "
+                                          "https://uk.mathworks.com/help/matlab/"
+                                          "matlab-engine-for-python.html")
                 use_matlab = False
 
         if self.edc_compensation_enable:
@@ -688,6 +692,7 @@ class AcEnvGenModelBase(object):
             bound_tuple = (bound_amps, bound_dels)
             bnds = tuple(map(tuple, np.concatenate(bound_tuple)))
 
+            # Original paper proposes interior point. Here we rely on minimize to pick an algorithm
             optres = minimize(optfis, x0, bounds=bnds)
             outp = optres.x
             fval = optres.fun
@@ -1851,7 +1856,7 @@ def get_edc_scale(reference, up_to=None, edc_scale_lim=None):
 
 def get_pca_excitation(airs, fs, modeling_span=(0.003, 0.003),
                        npccomps=.95, y=None, window=False,
-                       auto_reduce=False, matlab_eng=None, take_base_as=0):
+                       auto_reduce=False, take_base_as=0):
     """
     Estimates the excitation used ot measure a set of AIRs, which were measured using the same
     measuring method and the same equipment. The approach is discussed in:
@@ -1869,7 +1874,6 @@ def get_pca_excitation(airs, fs, modeling_span=(0.003, 0.003),
         matrix of provided responses will be used
         window: The window samples
         auto_reduce: Automatically drop principle components if the explained variance is 100%
-        matlab_eng: A MATLAB engine to use for the DTW
         take_base_as: Take this AIR index as the base for the alignments
 
     Returns:
@@ -1880,11 +1884,6 @@ def get_pca_excitation(airs, fs, modeling_span=(0.003, 0.003),
     from utils_spaudio import align_max_samples, fractional_alignment
     from utils_base import float2str
     from sklearn.decomposition import PCA
-    import matlab.engine
-    if matlab_eng is None:
-        eng = matlab.engine.start_matlab()
-    else:
-        eng = matlab_eng
 
     airs = np.array(airs)
     dsample = 0
@@ -1910,34 +1909,6 @@ def get_pca_excitation(airs, fs, modeling_span=(0.003, 0.003),
         return airs_or_out, airs_or_out
 
     airs = airs_max_aligned[:, back_span:front_span]
-
-    print('Getting DTW results')
-
-    ix = []
-    iy = []
-    for i in range(airs_max_aligned.shape[0]):
-        if i == take_base_as:
-            ix.append(None)
-            iy.append(None)
-            continue
-        xx = matlab.double(np.atleast_2d(airs[take_base_as, :]).T.tolist())
-        yy = matlab.double(np.atleast_2d(airs[i, :]).T.tolist())
-        _, ixx, iyy = eng.dtw(xx, yy, 'euclidean', nargout=3)
-        ix.append(np.array(ixx, dtype=int).flatten() - 1)
-        iy.append(np.array(iyy, dtype=int).flatten() - 1)
-
-    airs = airs.T
-    c = np.array(airs)
-    for i in range(c.shape[0]):
-        for j in range(len(ix)):
-            if j == take_base_as:
-                continue
-            matches = (ix[j]) == i
-            these_samples = iy[j][matches]
-            new_sample = np.mean(airs[these_samples, j])
-            c[i, j] = new_sample
-    airs = c.T
-
     airs, fdelays, _ = fractional_alignment(airs, ls_scale=True, take_base_as=take_base_as)
     print('Fractional alignment delays: ' + float2str(fdelays))
 

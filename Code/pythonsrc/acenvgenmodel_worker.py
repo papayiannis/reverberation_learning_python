@@ -111,7 +111,7 @@ if __name__ == '__main__':
                         help='Channel to model from the array')
     parser.add_argument('--fs', dest='fs', type=int, default=48000,
                         help='Sampling frequency to work with')
-    parser.add_argument('--transition', dest='transition', type=float, default=0.050,
+    parser.add_argument('--transition', dest='transition', type=float, default=0.0024,
                         help='Early part duration after max energy sample')
     parser.add_argument('--config', dest='config', type=int, default=1,
                         help='Source receiver config (1, 2)')
@@ -127,8 +127,8 @@ if __name__ == '__main__':
                         default=False, help='Make plots at each stage')
     parser.add_argument('--nodisplay', dest='nodisplay', action="store_true",
                         default=False, help='Use the Agg backend for matplotlib')
-    parser.add_argument('--nomatlabinit', dest='nomatlabinit', action="store_true",
-                        default=False, help='Do not preload a matlab engine')
+    parser.add_argument('--matlabinit', dest='matlabinit', action="store_true",
+                        default=False, help='Preload a matlab engine')
     parser.add_argument('--tex', dest='tex', action="store_true",
                         default=False, help='Use latex style plotting fonts')
     parser.add_argument('--plotexcitation', dest='plotexci', action="store_true",
@@ -175,7 +175,7 @@ if __name__ == '__main__':
     plotexci = args.plotexci
     given_air = args.air
     excitationdir = args.excitationdir
-    nomatlabinit = args.nomatlabinit
+    nomatlabinit = not args.matlabinit
     lassocoef = args.lassocoef
     sparsefact = args.sparsefact
     nocache = args.nocache
@@ -345,7 +345,6 @@ else:
 
         trans_air, or_air = get_pca_excitation(all_air, model_fs,
                                                modeling_span=excitation_modeling_span,
-                                               matlab_eng=eng,
                                                npccomps=pca_explained_var_for_exci, window=False,
                                                take_base_as=this_air_in_excitations)
         excitation = trans_air[this_air_in_excitations, :].flatten()
