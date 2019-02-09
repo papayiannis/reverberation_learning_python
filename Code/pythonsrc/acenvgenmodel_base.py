@@ -674,7 +674,7 @@ class AcEnvGenModelBase(object):
                 if np.any(np.isnan(error_measure)):
                     raise ValueError('Found NaN in MSE calculation')
                 return error_measure
-
+ 
             bound_amps = np.repeat([[-5, +5]], num_reflections, axis=0)
             bound_dels = []
             epsilon = 10. ** (-self.soa_decimal_precision)
