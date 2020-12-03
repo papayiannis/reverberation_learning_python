@@ -22,14 +22,19 @@ This file was original distributed in the repository at:
 {repo}
 
 If you use this code in your work, then cite:
-C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-End Classification of Reverberant Rooms using DNNs," arXiv preprint arXiv:1812.09324, 2018.
+C. Papayiannis, C. Evers and P. A. Naylor,
+"End-to-End Classification of Reverberant Rooms Using DNNs,"
+in IEEE/ACM Transactions on Audio, Speech, and Language Processing,
+vol. 28, pp. 3010-3017, 2020, doi: 10.1109/TASLP.2020.3033628.
 
 """
 
-from __future__ import print_function
-
 import inspect
 import sys
+from os import walk
+from os.path import join
+from subprocess import Popen, PIPE
+from time import time
 
 import numpy as np
 
@@ -47,7 +52,7 @@ def matrix_stats(x, flat=False):
 
     """
     args = {'axis': 0} if not flat else {}
-    print_func = lambda x: float2str(x, num_decimals=5)
+    print_func = lambda xx: float2str(xx, num_decimals=5)
     print('For data with shape ' + str(x.shape))
     print('Mean : ' + print_func(np.mean(x, **args)))
     print('Median : ' + print_func(np.median(x, **args)))
@@ -273,7 +278,7 @@ def run_command_list_stdout(command):
         The stdout as a list of strings. Each string element is a returned line
 
     """
-    std_out = run_command(command)[0]
+    std_out = run_command(command)[0].decode()
     return std_out.rstrip().split("\n")
 
 
@@ -288,9 +293,8 @@ def run_command(command):
         The stdout
 
     """
-    from subprocess import Popen, PIPE
     proc = Popen(command.split(' '), stdout=PIPE, stderr=PIPE)
-    std_out, std_err = proc.communicate()
+    std_out, std_err = [x.decode() for x in proc.communicate()]
     if len(std_err) > 0:
         print('stderr: ' + std_err)
     return std_out.rstrip(), std_err.rstrip()
@@ -339,16 +343,13 @@ def find_all_ft(directory_location, ft=".Wav", use_find=True, find_iname=False):
         for i in directory_location:
             directories += i + ' '
         directories = directories[0:-1]
-        all_files = run_command(
-            'find ' + directories + ' -type f -' + name + ' *' + ft)[0].rstrip().split("\n")
+        all_files = run_command(f'find -L {directories} -type f -{name} *{ft}')[0].rstrip().split("\n")
     else:
         if find_iname:
             raise AssertionError(
                 'You are expecting case insensitive searching but you are not using \'use_find\' '
                 'which allows this')
-        from os import walk
-        from os.path import join
-        print('Finding all ' + ft + ' in ' + directory_location)
+        print(f'Finding all {ft} in {directory_location}')
         all_files = []
         if not isinstance(directory_location, list):
             directory_location = [directory_location]
@@ -357,7 +358,7 @@ def find_all_ft(directory_location, ft=".Wav", use_find=True, find_iname=False):
                 for file in files:
                     if file.endswith(ft):
                         all_files.append(join(root, file))
-    print('Found ' + str(len(all_files)) + ' of ' + ft + ' in ' + str(directory_location))
+    print(f'Found {len(all_files)} of {ft} in {directory_location}')
     return all_files
 
 
@@ -477,7 +478,6 @@ def get_timestamp():
         The timestamp as a string
 
     """
-    from time import time
     timestamp = str(time())
     return timestamp
 
@@ -501,4 +501,4 @@ def isclose(a, b, rel_tol=1e-09, abs_tol=0.0):
 
 
 if __name__ == '__main__':
-    print('Your repo git hash: ' + get_git_hash())
+    print(f'Your repo git hash: {get_git_hash()}')

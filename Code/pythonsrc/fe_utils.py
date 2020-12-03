@@ -25,9 +25,35 @@ This file was original distributed in the repository at:
 {repo}
 
 If you use this code in your work, then cite:
-C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-End Classification of Reverberant Rooms using DNNs," arXiv preprint arXiv:1812.09324, 2018.
+C. Papayiannis, C. Evers and P. A. Naylor,
+"End-to-End Classification of Reverberant Rooms Using DNNs,"
+in IEEE/ACM Transactions on Audio, Speech, and Language Processing,
+vol. 28, pp. 3010-3017, 2020, doi: 10.1109/TASLP.2020.3033628.
 
 """
+
+from os.path import abspath
+from os.path import basename
+from os.path import isfile
+from random import randint
+from random import sample
+from time import sleep
+from time import time
+
+import numpy as np
+import pandas as pd
+from h5py import File
+from numpy.fft import rfft
+from scipy.io import wavfile
+from scipy.io.wavfile import read
+from scipy.signal import fftconvolve
+from tabulate import tabulate
+
+from utils_base import find_all_ft, run_command
+from utils_base import flatten_list
+from utils_spaudio import enframe
+from utils_spaudio import my_resample
+from utils_spaudio import write_wav
 
 
 def print_split_report(y, split_idxs=(), split_names=()):
@@ -48,8 +74,6 @@ def print_split_report(y, split_idxs=(), split_names=()):
         Nothing
 
     """
-    import numpy as np
-    from tabulate import tabulate
     if len(split_idxs) == 0:
         split_idxs = (np.arange(0, y.shape[0]),)
     if not len(split_idxs) == len(split_names):
@@ -67,6 +91,65 @@ def print_split_report(y, split_idxs=(), split_names=()):
             distributions[j, i] = np.sum(y[idxs, j])
     print('Data Distributions:')
     print(tabulate(distributions, headers=split_names, showindex=True))
+
+
+def __make_start_at_max(x_in, fs=None, max_air_len=None, just_crop=False, leeway=0.0):
+    x = np.array(x_in)
+    max_samples = None
+    if max_air_len is not None or leeway is not None:
+        if fs is None:
+            raise AssertionError('Max length and leeway should be given with fs')
+    if max_air_len is not None:
+        max_samples = int(np.ceil(max_air_len * fs))
+
+    if leeway is None:
+        leeway_samples = 0
+    else:
+        leeway_samples = int(np.ceil(leeway * fs))
+    min_max = np.inf
+    max_max = 0
+    if not just_crop:
+        for i in range(x.shape[0]):
+            maxp = max(0, np.argmax(np.abs(x[i, :])) - leeway_samples)
+            min_max = min(min_max, maxp)
+            max_max = max(max_max, maxp)
+            if maxp > 0:
+                x[i, 0:-maxp] = np.array(x[i, maxp:])
+                x[i, -maxp:] = 0
+        # x = x[:, np.any(x > 0, axis=0)]
+        print(f'Max shift : {max_max} min max : {min_max}')
+    if max_air_len is not None:
+        x = x[:, 0:max_samples]
+        if x.shape[1] < max_samples:
+            padding = np.zeros((x.shape[0], max_samples - x.shape[1]))
+            x = np.concatenate((x, padding), axis=1)
+    return x
+
+
+def __to_enframed(x, framesize=None, window=True):
+    return np.stack(
+        [enframe(x[i, :], framesize, int(np.ceil(framesize / 2)), hamming_window=window)
+         for i in range(x.shape[0])])
+
+
+def __to_pow_spec(x, framesize=None, match_training_spectrum=False):
+    print('Getting FFTs')
+    oshape = x.shape
+    if framesize is not None:
+        if x.ndim < 3:
+            x = __to_enframed(x, framesize=framesize)
+            oshape = x.shape
+        x = np.concatenate([x[i, :, :] for i in range(x.shape[0])], axis=0)
+    x = (abs(rfft(x, axis=1)))
+    if match_training_spectrum:
+        av_spec = np.genfromtxt('../results_dir/surface_models/average_response_abs_fft.csv',
+                                delimiter=',')
+        x *= np.atleast_2d(av_spec)
+    x[x == 0] = np.min(x[x > 0]) * 0.01
+    x = np.log(x)
+    if framesize is not None:
+        x = x.reshape(tuple(list(oshape)[0:2] + [-1]))
+    return x
 
 
 def data_post_proc(x, fs, start_at_max, framesize, get_pow_spec, max_len, wavform_logpow):
@@ -88,7 +171,6 @@ def data_post_proc(x, fs, start_at_max, framesize, get_pow_spec, max_len, wavfor
         The processed signals
 
     """
-    import numpy as np
 
     match_training_spectrum = False
     if get_pow_spec and wavform_logpow:
@@ -105,90 +187,16 @@ def data_post_proc(x, fs, start_at_max, framesize, get_pow_spec, max_len, wavfor
         print('Truncate the maximum length of the input')
     if wavform_logpow:
         print('Convert the time domain samples to the logpow')
-    print('And return the results for ' + str(x.shape[0]) + ' inputs')
-
-    def make_start_at_max(x, fs=None, max_air_len=None, just_crop=False, leeway=0.0):
-        max_samples = None
-        if max_air_len is not None or leeway is not None:
-            if fs is None:
-                raise AssertionError('Max length and leeway should be given with fs')
-        if max_air_len is not None:
-            max_samples = int(np.ceil(max_air_len * fs))
-
-        if leeway is None:
-            leeway_samples = 0
-        else:
-            leeway_samples = int(np.ceil(leeway * fs))
-        min_max = np.inf
-        max_max = 0
-        if not just_crop:
-            for i in range(x.shape[0]):
-                maxp = max(0, abs(x[i, :]).argmax() - leeway_samples)
-                min_max = min(min_max, maxp)
-                max_max = max(max_max, maxp)
-                if maxp > 0:
-                    x[i, 0:-maxp] = np.array(x[i, maxp:])
-                    x[i, -maxp:] = 0
-            x = x[:, np.any(x > 0, axis=0)]
-            print('Max shift : ' + str(max_max) + ' min max : ' + str(min_max))
-        if max_air_len is not None:
-            x = x[:, 0:max_samples]
-            if x.shape[1] < max_samples:
-                padding = np.zeros((x.shape[0], max_samples - x.shape[1]))
-                x = np.concatenate((x, padding), axis=1)
-        return x
-
-    def to_enframed(x, framesize=None, window=True):
-        from utils_spaudio import enframe
-
-        return np.stack(
-            [enframe(x[i, :], framesize, int(np.ceil(framesize / 2)), hamming_window=window)
-             for i in range(x.shape[0])])
-
-    def to_pow_spec(x, framesize=None):
-        from numpy.fft import rfft
-        print('Getting FFTs')
-        oshape = x.shape
-        if framesize is not None:
-            if x.ndim < 3:
-                x = to_enframed(x, framesize=framesize)
-                oshape = x.shape
-            x = np.concatenate([x[i, :, :] for i in range(x.shape[0])], axis=0)
-        x = (abs(rfft(x, axis=1)))
-        if match_training_spectrum:
-            av_spec = np.genfromtxt('../results_dir/surface_models/average_response_abs_fft.csv',
-                                    delimiter=',')
-            x *= np.atleast_2d(av_spec)
-        x[x == 0] = np.min(x[x > 0]) * 0.01
-        x = np.log(x)
-        if framesize is not None:
-            x = x.reshape(tuple(list(oshape)[0:2] + [-1]))
-        return x
+    print(f'And return the results for {x.shape[0]} inputs')
 
     if start_at_max or (max_len is not None):
-        from time import sleep
-        retry = True
-        give_up_at = 1
-        retries = 0
-        while retry:
-            try:
-                x = make_start_at_max(x, fs, max_len, just_crop=(not start_at_max), leeway=0.0)
-                retry = False
-            except ValueError as ME:
-                print('Failed to fex because ' + ME.message)
-                retries += 1
-                sleep(.5)
-                if retries + 1 > give_up_at:
-                    print('Trying to make it writable')
-                    x.setflags(write=1)
-                if retries > give_up_at:
-                    raise ME
+        x = __make_start_at_max(x, fs, max_len, just_crop=(not start_at_max), leeway=0.0)
 
     if framesize is not None:
-        x = to_enframed(x, framesize=framesize, window=get_pow_spec)
+        x = __to_enframed(x, framesize=framesize, window=get_pow_spec)
 
     if get_pow_spec:
-        x = to_pow_spec(x, framesize=framesize)
+        x = __to_pow_spec(x, framesize=framesize, match_training_spectrum=match_training_spectrum)
 
     if wavform_logpow:
         x = x ** 2
@@ -253,21 +261,6 @@ def read_airs_from_wavs(wav_files, framesize=None, get_pow_spec=True,
         (Group_name, Groups), Number_of_utternaces_convolved_with_each_AIR
 
     """
-    try:
-        from os.path import isfile, basename
-    except ImportError:
-        raise
-    from scipy.signal import fftconvolve
-    import numpy as np
-    from h5py import File
-    from scipy.io import wavfile
-    from utils_spaudio import my_resample, write_wav
-    from utils_base import find_all_ft, run_command
-    from random import sample
-    import pandas as pd
-    from random import randint
-    from time import time
-
     run_command('mkdir -p ' + cacheloc)
     latest_file = cacheloc + '/training_test_data_wav.h5'
     timestamp = str(time())
@@ -284,19 +277,18 @@ def read_airs_from_wavs(wav_files, framesize=None, get_pow_spec=True,
             print('There is no speech to save audio for, setting to 0 examples')
             save_speech_examples = 0
 
+    hf = None
     try:
-        hf = None
         if isfile(latest_file) and read_cached_latest:
-            print('Reading :' + latest_file)
+            print(f'Reading : {latest_file}')
             hf = File(latest_file, 'r')
             if as_hdf5_ds:
                 x = hf['x']
-                ids = hf['ids']
                 airs = hf['airs']
                 utt_per_env = np.array(hf['utts'])
                 rev_speech = hf['rev_names']
                 clean_speech = hf['clean_speech']
-                print('Done creating handles to : ' + latest_file)
+                print(f'Done creating handles to : {latest_file}')
             else:
                 utt_per_env = np.array(hf['utts'])
                 x = np.array(hf.get('x'))
@@ -304,12 +296,12 @@ def read_airs_from_wavs(wav_files, framesize=None, get_pow_spec=True,
                 airs = np.array(hf.get('airs'))
                 rev_speech = np.array(hf.get('rev_names'))
                 clean_speech = np.array(hf.get('clean_speech'))
-                print('Done reading : ' + latest_file)
+                print(f'Done reading : {latest_file}')
+            ids = np.array([x.decode() for x in hf['ids']])
             if given_associations is not None:
                 print('! I read the cache so the given associations were not used')
             if copy_associations_to is not None:
-                print('! I read the cache so the associations could not be saved at ' +
-                      copy_associations_to)
+                print(f'! I read the cache so the associations could not be saved at {copy_associations_to}')
             return (x, None), ids, None, (airs, clean_speech, rev_speech), utt_per_env
     except (ValueError, KeyError) as ME:
         print('Tried to read ' + latest_file + ' but failed with ' + ME.message)
@@ -317,8 +309,8 @@ def read_airs_from_wavs(wav_files, framesize=None, get_pow_spec=True,
             hf.close()
 
     if given_associations is not None:
-        print('You gave me speech associations, Speech: ' + str(len(given_associations['speech'])) +
-              ' entries and Offsets: ' + str(len(given_associations['speech'])) + ' entries')
+        print(f'You gave me speech associations, Speech:  {len(given_associations["speech"])}'
+              f' entries and Offsets: {len(given_associations["speech"])}  entries')
 
     ids = None
     x = None
@@ -333,6 +325,7 @@ def read_airs_from_wavs(wav_files, framesize=None, get_pow_spec=True,
             my_resample(np.array(x.T, dtype=float), fs, forced_fs)
         ).T
 
+    max_air_read_samples = None
     if max_air_read is not None:
         if fs is None:
             raise AssertionError('Cannot work with max_air_read without fs')
@@ -366,8 +359,8 @@ def read_airs_from_wavs(wav_files, framesize=None, get_pow_spec=True,
     wav_files = [i for i in wav_files for _ in range(utt_per_env)]
     offsets = []
     for i, this_wav_file in enumerate(wav_files):
-        if False and speech_files is not None:
-            print "Reading: " + this_wav_file + " @ " + str(i + 1) + " of " + str(len(wav_files)),
+        # if speech_files is not None:
+        #     print("Reading: " + this_wav_file + " @ " + str(i + 1) + " of " + str(len(wav_files)), end='')
         names = [all_names[i]]
         this_fs, airs = wavfile.read(this_wav_file)
         airs = airs.astype(float)
@@ -466,7 +459,7 @@ def read_airs_from_wavs(wav_files, framesize=None, get_pow_spec=True,
         if max_air_read is not None:
             airs = airs[:, 0:max_air_read_samples]
         if False and speech_files is not None:
-            print("Got " + str(airs.shape))
+            print(f"Got {airs.shape}")
         airs = resample_op(airs)
         if airs.ndim < 2:
             airs = np.atleast_2d(airs)
@@ -528,7 +521,6 @@ def read_airs_from_wavs(wav_files, framesize=None, get_pow_spec=True,
                 x_rev_speech = np.array(this_rev_speech)
 
     if save_speech_associations:
-        from utils_base import run_command
         df = pd.DataFrame(
             {'air': wav_files,
              'speech': np.array(speech_files)[associations]
@@ -539,17 +531,15 @@ def read_airs_from_wavs(wav_files, framesize=None, get_pow_spec=True,
              given_associations['offsets']})
 
         df.to_csv(filename_associations, index=False)
-        print('Saved: ' + filename_associations + ('' if given_associations is None else
-                                                   ' which was created from the given associations'
-                                                   ))
+        print(f'Saved: {filename_associations} ')
         if copy_associations_to is not None:
             run_command('cp ' + filename_associations + ' ' + copy_associations_to)
-            print('Saved: ' + copy_associations_to)
+            print(f'Saved: {copy_associations_to}')
 
     if fs is not None:
-        print('Got ' + str(x.shape[0]) + ' AIRs of duration ' + str(x.shape[1] / float(fs)))
+        print(f'Got {x.shape[0]} AIRs of duration {x.shape[1] / float(fs)}')
     else:
-        print('Got ' + str(x.shape[0]) + ' AIRs of length ' + str(x.shape[1]))
+        print(f'Got {x.shape[0]} AIRs of length {x.shape[1]}')
 
     if speech_files is not None:
         proc_data = x_rev_speech
@@ -568,7 +558,7 @@ def read_airs_from_wavs(wav_files, framesize=None, get_pow_spec=True,
         x_out = data_post_proc(np.array(proc_data), forced_fs, start_at_max, framesize,
                                get_pow_spec, max_air_len, wavform_logpow)
 
-        print('Left with ' + str(x_out.shape) + ' AIR features data ')
+        print(f'Left with {x_out.shape} AIR features data ')
 
     ids = ids.astype(str)
 
@@ -581,7 +571,7 @@ def read_airs_from_wavs(wav_files, framesize=None, get_pow_spec=True,
             else:
                 hf.create_dataset('x', data=x_out)
             hf.create_dataset('y', data=[])
-            hf.create_dataset('ids', data=ids)
+            hf.create_dataset('ids', data=[x.encode() for x in ids])
             hf.create_dataset('class_names', data=[])
             hf.create_dataset('airs', data=x)
             hf.create_dataset('utts', data=utt_per_env)
@@ -593,9 +583,9 @@ def read_airs_from_wavs(wav_files, framesize=None, get_pow_spec=True,
                 hf.create_dataset('rev_names', data=[])
             hf.close()
             wrote_h5 = True
-            print('Wrote: ' + str(latest_file))
+            print(f'Wrote: {latest_file}')
         except IOError as ME:
-            print('Cache writing failed with ' + str(ME.message))
+            print(f'Cache writing failed with {ME}')
 
         if (not wrote_h5) and as_hdf5_ds:
             raise AssertionError('Could not provide data in correct format')
@@ -607,6 +597,7 @@ def read_airs_from_wavs(wav_files, framesize=None, get_pow_spec=True,
             x_speech = hf['clean_speech']
             x_rev_speech = hf['rev_names']
             # hf.close()
+        ids = np.array([x.decode() for x in ids])
 
     return (x_out, None), ids, None, (x, x_speech, x_rev_speech), utt_per_env
 
@@ -628,17 +619,11 @@ def compile_ace_h5(wav_loc, saveloc, ft='.wav', all_single_channel=False):
         Nothing
 
     """
-    from utils_base import find_all_ft, run_command
-    try:
-        from os.path import abspath
-    except ImportError:
-        raise
-    from h5py import File
 
     all_wavs = find_all_ft(wav_loc, ft=ft, use_find=True)
     channels = []
     for i in range(len(all_wavs)):
-        print('Reading : ' + all_wavs[i])
+        print(f'Reading : all_wavs[i]')
         all_wavs[i] = abspath(all_wavs[i])
         if all_single_channel:
             channels.append('1')
@@ -647,14 +632,14 @@ def compile_ace_h5(wav_loc, saveloc, ft='.wav', all_single_channel=False):
                 channels.append(run_command('soxi -c ' + all_wavs[i])[0])
             except OSError as ME:
                 print('I think that soxi is not installed because when i tried to use it to get '
-                      'the number of channels, i got this ' + ME.message)
+                      'the number of channels, i got this ' + str(ME))
                 raise
 
     hf = File(saveloc, 'w')
     hf.create_dataset('filenames', data=all_wavs)
     hf.create_dataset('chan', data=channels)
     hf.close()
-    print('Done with : ' + saveloc)
+    print(f'Done with : {saveloc}')
 
 
 def get_ace_xy(h5_file='../results_dir/ace_h5_info.h5', ace_base='../Local_Databases/AIR/ACE/',
@@ -693,18 +678,11 @@ def get_ace_xy(h5_file='../results_dir/ace_h5_info.h5', ace_base='../Local_Datab
         (Group_name, Groups)
 
     """
-    from h5py import File
-    import numpy as np
-    try:
-        from os.path import basename
-    except ImportError:
-        raise
-    from utils_base import flatten_list
     parse_as_dirctories = False
 
     hf = File(h5_file, 'r')
-    wav_files = (np.array(hf.get('filenames')).astype(str)).tolist()
-    chan = (np.array(hf.get('chan')).astype(int) - 1).tolist()
+    wav_files = list((np.array(hf.get('filenames')).astype(str)).tolist())
+    chan = list((np.array(hf.get('chan')).astype(int) - 1).tolist())
 
     type_dict = {'502': 'Office', '803': 'Office', '503': 'Meeting_Room', '611': 'Meeting_Room',
                  '403a': 'Lecture_Room', '508': 'Lecture_Room', 'EE-lobby': 'Building_Lobby'}
@@ -786,7 +764,7 @@ def get_ace_xy(h5_file='../results_dir/ace_h5_info.h5', ace_base='../Local_Datab
         elif this_group_by == 'array':
             _, new_group_name, new_groups = categorical_to_mat(array)
         elif this_group_by == 'air':
-            new_groups = np.atleast_2d(np.arange(y.shape[0])).T
+            new_groups = np.atleast_2d(np.arange(len(y))).T
             new_group_name = np.array(ids)
         elif this_group_by == 'channel':
             max_ch = max(ch) + 1
@@ -841,7 +819,6 @@ def categorical_to_mat(categorical):
         The list of indices of 'categorical' which belong to the labels in 'unique_vals'
 
     """
-    import numpy as np
     categorical = np.array(categorical)
     unique_vals = np.unique(categorical)
     y = np.zeros((categorical.size, unique_vals.size), dtype=bool)
@@ -866,9 +843,6 @@ def collect_wavs(filenames, dest_fs=None):
         An array of the samples of the files as [N_files x N_samples]
 
     """
-    import numpy as np
-    from scipy.io.wavfile import read
-    from utils_spaudio import my_resample
     if not (isinstance(filenames, list) or isinstance(filenames, tuple)):
         filenames = [filenames]
     samples = []
@@ -891,4 +865,3 @@ def collect_wavs(filenames, dest_fs=None):
     out = np.concatenate([samples[i].T for i in range(len(samples))], axis=0)
 
     return out
-

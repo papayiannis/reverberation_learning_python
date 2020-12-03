@@ -23,14 +23,24 @@ This file was original distributed in the repository at:
 {repo}
 
 If you use this code in your work, then cite:
-C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-End Classification of Reverberant Rooms using DNNs," arXiv preprint arXiv:1812.09324, 2018.
+C. Papayiannis, C. Evers and P. A. Naylor,
+"End-to-End Classification of Reverberant Rooms Using DNNs,"
+in IEEE/ACM Transactions on Audio, Speech, and Language Processing,
+vol. 28, pp. 3010-3017, 2020, doi: 10.1109/TASLP.2020.3033628.
 
 """
 
 from random import shuffle
+from subprocess import call
+from time import time
 
 import numpy as np
 from keras.callbacks import Callback
+from keras.callbacks import EarlyStopping, TensorBoard
+from keras.utils import plot_model
+
+from fe_utils import print_split_report
+from utils_base import float2str
 
 
 def multi_batch_gen(x_data_list, y_out_list, samples_per_class, y_to_balance=None, sub_idxs=None,
@@ -160,8 +170,6 @@ def batch_gen(x_data, y_out, samples_per_class, y_to_balance=None, no_check=True
     if not len(augmentation_func) == nsets:
         raise AssertionError('Input error')
 
-    if verbose:
-        from fe_utils import print_split_report
     if y_to_balance is None:
         if y_out is None:
             raise AssertionError('Cannot work without any y\'s')
@@ -259,12 +267,9 @@ def model_trainer(the_batch_gen, in_shape, out_shape, get_model, val_patience=15
     Returns:
 
     """
-    from time import time
-    from keras.callbacks import EarlyStopping, TensorBoard
 
     timestamp = str(time())
     if model_filename is None:
-        from subprocess import call
         call(["mkdir", "-p", scratchpad])
         model_filename = scratchpad + '/ace_model' + timestamp + '.h5'
     input_shape = in_shape
@@ -297,15 +302,14 @@ def model_trainer(the_batch_gen, in_shape, out_shape, get_model, val_patience=15
     if save_model_image:
         imgdir = model_filename.replace('.h5', '.pdf')
         try:
-            from keras.utils import plot_model
             plot_model(model, to_file=imgdir, show_shapes=True)
-        except ImportError:
+        except (ImportError, ValueError):
             print('Could not save model image')
         print('Saved model image at: ' + imgdir)
 
     print('Training...')
     model.fit_generator(the_batch_gen, epochs=epochs,
-                        validation_data=val_gen, validation_steps=3,
+                        validation_data=val_gen, validation_steps=int(np.ceil(.15 * steps_per_epoch)),
                         verbose=0, callbacks=callbacks, steps_per_epoch=steps_per_epoch, )
     for i in callbacks:
         if type(i) is PostEpochWorker:
@@ -348,7 +352,6 @@ def accuracy_eval(x, y, cmodel, prefix=None):
     Returns: The predictions
 
     """
-    from utils_base import float2str
     y_pred = np.argmax(cmodel.predict(x), axis=1).flatten()
     acc = np.sum(y_pred == np.argmax(y, axis=1)).flatten() / float(x.shape[0])
     print(((prefix + ' ') if prefix is not None else '') + 'Accuracy: ' + float2str(acc, 4))
@@ -378,8 +381,6 @@ def get_scaler_descaler(x, verbose=False):
         Descaler function object
 
     """
-    import numpy as np
-    from utils_base import float2str
     if x.ndim > 2:
         conced_x = np.concatenate(x, axis=0)
     else:
@@ -459,7 +460,6 @@ class PostEpochWorker(Callback):
             print('Will save best model as ' + self.model_filename)
 
     def run_eval(self, epoch, logs={}):
-        import numpy as np
         if epoch is None:
             eval_go = True
         else:
@@ -478,14 +478,10 @@ class PostEpochWorker(Callback):
                             self.eval_fun[i](np.array(self.x_test[i]), np.array(self.y_test[i]),
                                              self.model)
                 else:
-                    print 'Skipping eval of epoch ' + (
-                        str(epoch) if epoch is not None else '*last*') \
-                          + ' since this is a dead season' + \
-                          '                                          ' + '\r',
+                    print(f'Skipping eval of epoch {epoch} since this is a dead season {" " * 25}', end='\r')
             self.update_since_last = False
 
     def on_epoch_end(self, epoch, logs={}):
-        from utils_base import float2str
 
         cval_loss = logs.get('val_loss')
         loss_name = 'val_loss'
@@ -500,13 +496,12 @@ class PostEpochWorker(Callback):
                 try:
                     self.model.save(self.model_filename)
                 except TypeError:
-                    print('Could not save model ' + self.model_filename)
-            print 'At epoch : ' + str(
-                epoch) + ' found new best ' + loss_name + ' model with ' + loss_name + ' ' + \
-                  float2str(self.best_val_loss, 12) + '                         ' + '\r',
+                    print(f'Could not save model {self.model_filename}')
+            print(f'At epoch : {epoch} found new best {loss_name} model with {loss_name} '
+                  f'{float2str(self.best_val_loss, 12)}{" " * 25}', end='\r')
 
         self.run_eval(epoch)
 
     def on_train_end(self, logs=None):
-        print '                                                                          \r',
+        print(' ' * 74, end='\r')
         self.run_eval(None)

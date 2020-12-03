@@ -23,7 +23,10 @@ This file was original distributed in the repository at:
 {repo}
 
 If you use this code in your work, then cite:
-C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-End Classification of Reverberant Rooms using DNNs," arXiv preprint arXiv:1812.09324, 2018.
+C. Papayiannis, C. Evers and P. A. Naylor,
+"End-to-End Classification of Reverberant Rooms Using DNNs,"
+in IEEE/ACM Transactions on Audio, Speech, and Language Processing,
+vol. 28, pp. 3010-3017, 2020, doi: 10.1109/TASLP.2020.3033628.
 
 """
 import numpy as np
@@ -32,6 +35,20 @@ from scipy.signal import lfilter
 from utils_base import getfname, column_vector, row_vector
 
 resample_eng = None
+
+from utils_base import repack_array_list
+
+import matplotlib.pyplot as mplot
+
+from utils_base import flatten_array_list
+from scipy.io import wavfile
+from scipy.signal import welch
+
+try:
+    import matlab
+    import matlab.engine
+except ImportError:
+    print('Could not import matlab libraries')
 
 
 def my_resample(x, fs_old, fs_new, matlab_eng=None, verbose=False,
@@ -61,7 +78,6 @@ def my_resample(x, fs_old, fs_new, matlab_eng=None, verbose=False,
     Returns: The resampled audio signal
 
     """
-    from utils_base import flatten_array_list, repack_array_list
     global resample_eng
     was_int16 = False
 
@@ -77,14 +93,11 @@ def my_resample(x, fs_old, fs_new, matlab_eng=None, verbose=False,
     if resample_eng is not None:
         eng = resample_eng
         print('Using static engine')
-        import matlab
     elif matlab_eng is not None:
         print('Using provided Matlab engine')
-        import matlab
         eng = matlab_eng
         my_resample.ext_eng = eng
     else:
-        import matlab.engine
         print('Creating Matlab engine')
         eng = matlab.engine.start_matlab()
     resample_eng = eng
@@ -134,8 +147,6 @@ def get_psd(x, fs, window_seconds, ):
     Returns: frequency_points, PSD, Power Spectrum
 
     """
-
-    from scipy.signal import welch
 
     nperseg = int(np.ceil(fs * window_seconds))
     _, psd = welch(x, fs=fs, window='hamming', nperseg=nperseg, noverlap=None, nfft=None,
@@ -199,7 +210,6 @@ def write_wav(filename, fs, ss):
     Returns: Nothing
 
     """
-    from scipy.io import wavfile
     wavfile.write(filename, fs, (ss.astype('float64') / abs(ss).max() * np.iinfo('int16').max
                                  ).astype('int16'))
     print('Wrote : ' + filename)
@@ -264,7 +274,6 @@ def align_max_samples(yin, scan_range=None):
         List of delay introduces in each signal during alignment
 
     """
-    from utils_base import flatten_array_list
 
     yin = flatten_array_list(yin)[0]
     if yin.ndim == 1:
@@ -575,42 +584,6 @@ def overlapadd(input_frames, window_samples=None, inc=None,
     return z, current_partial_output
 
 
-def playaudio(samples, sampling_freq, wait_to_finish=True):
-    """
-
-    Plays audio using pygame
-
-    Args:
-        samples: Audio samples
-        sampling_freq: Sampling frequency
-        wait_to_finish: Wait for the player to finish before returning
-
-    Returns:
-        The samples passed to the player
-    """
-    try:
-        import pygame as pyg
-    except ImportError:
-        raise
-    pyg.mixer.init(frequency=sampling_freq, channels=2)
-
-    samples = np.array(samples, dtype='int16')
-    if samples.ndim == 1:
-        samples = np.concatenate((column_vector(samples), column_vector(samples)), axis=1)
-    elif samples.ndim > 2:
-        samples = samples[:, 0:2]
-
-    pyg.mixer.Sound(array=samples).play()
-
-    if wait_to_finish:
-        nsecs = int(np.ceil(samples.shape[0] / float(sampling_freq)))
-        print(getfname() + " : Playing " + repr(nsecs) + " seconds of audio")
-        while pyg.mixer.get_busy():
-            pass
-
-    return samples
-
-
 def get_array_energy(alike):
     """
     Getthe total energy of the elements in an array
@@ -648,8 +621,6 @@ def plotnorm(x=None, y=None, title=None, interactive=False, clf=False, savelocat
         The plot
 
     """
-
-    import matplotlib.pyplot as mplot
 
     hasfs = False
     if (x is None) & (y is not None):

@@ -23,12 +23,17 @@ This file was original distributed in the repository at:
 {repo}
 
 If you use this code in your work, then cite:
-C. Papayiannis, C. Evers, and P. A. Naylor, "End-to-End Classification of Reverberant Rooms using DNNs," arXiv preprint arXiv:1812.09324, 2018.
+C. Papayiannis, C. Evers and P. A. Naylor,
+"End-to-End Classification of Reverberant Rooms Using DNNs,"
+in IEEE/ACM Transactions on Audio, Speech, and Language Processing,
+vol. 28, pp. 3010-3017, 2020, doi: 10.1109/TASLP.2020.3033628.
 
 """
 import numpy as np
+from scipy.optimize import curve_fit
 
 from utils_base import matmax, getfname, column_vector
+from utils_spaudio import enframe, overlapadd
 from utils_spaudio import get_array_energy
 
 
@@ -83,7 +88,6 @@ def scale_with_absorption_coefs(x, fs, freqs, abs_coef, framesize=0.020, times=(
         The filtered signal
 
     """
-    from utils_spaudio import enframe, overlapadd
 
     times = np.array(times).round().astype(int)
     abs_coef = np.atleast_2d(abs_coef)
@@ -201,7 +205,6 @@ def get_t60_decaymodel(air_fir_taps, sampling_freq):
         An estimate of the reverbration time in seconds
 
     """
-    from scipy.optimize import curve_fit
 
     def decay_model(x_points, param0, param1, param2):
         """ The function used bo the non-linear least squares fitting method to
@@ -264,7 +267,7 @@ def get_edc(air_fir_taps):
         edcurve = get_edc(air_fir_taps)
 
     """
-    edcurve = np.flip(np.cumsum(np.array(air_fir_taps[::-1]) ** 2).flatten(), 0)
+    edcurve = np.flip(np.square(np.cumsum(np.array(air_fir_taps[::-1])) ** 2).flatten(), 0)
     return edcurve
 
 

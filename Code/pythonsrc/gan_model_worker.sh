@@ -46,7 +46,10 @@
 # {repo}
 # If you use this code in your work, then cite [1].
 #
-# [1] C. Papayiannis, C. Evers, and P. A. Naylor, "Data Augmentation of Room Classifiers using Generative Adversarial Networks," arXiv preprint arXiv:1901.03257, 2018.
+# [1] C. Papayiannis, C. Evers and P. A. Naylor,
+# "End-to-End Classification of Reverberant Rooms Using DNNs,"
+# in IEEE/ACM Transactions on Audio, Speech, and Language Processing,
+# vol. 28, pp. 3010-3017, 2020, doi: 10.1109/TASLP.2020.3033628.
 # [2] http://www.ee.ic.ac.uk/naylor/ACEweb/index.html
 #
 #################################################################################################################
